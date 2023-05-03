@@ -29,7 +29,7 @@ provider "kubectl" {
 module "eks_blueprints" {
   source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.27.0"
 
-  cluster_name    = local.name
+  cluster_name = local.name
 
   # EKS Cluster VPC and Subnet mandatory config
   vpc_id             = module.vpc.vpc_id
@@ -43,7 +43,7 @@ module "eks_blueprints" {
   map_roles = [
     {
       rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/TeamRole"
-      username = "ops-role" # The user name within Kubernetes to map to the IAM role
+      username = "ops-role"         # The user name within Kubernetes to map to the IAM role
       groups   = ["system:masters"] # A list of groups within Kubernetes to which the role is mapped; Checkout K8s Role and Rolebindings
     }
   ]
@@ -102,7 +102,7 @@ module "vpc" {
   name = local.name
   cidr = local.vpc_cidr
 
-  azs  = local.azs
+  azs             = local.azs
   public_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k)]
   private_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 10)]
 
@@ -129,13 +129,13 @@ module "vpc" {
     "kubernetes.io/role/internal-elb"     = "1"
   }
 
-    tags = local.tags
+  tags = local.tags
 }
 
 module "kubernetes_addons" {
   source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.27.0/modules/kubernetes-addons"
 
-  eks_cluster_id     = module.eks_blueprints.eks_cluster_id
+  eks_cluster_id = module.eks_blueprints.eks_cluster_id
 
   #---------------------------------------------------------------
   # ARGO CD ADD-ON
@@ -173,7 +173,7 @@ module "kubernetes_addons" {
   karpenter_node_iam_instance_profile        = module.karpenter.instance_profile_name
   karpenter_enable_spot_termination_handling = true
   #karpenter_sqs_queue_arn                    = module.karpenter.queue_arn  
-  enable_kubecost                            = true
+  enable_kubecost = true
 
 }
 
@@ -186,8 +186,8 @@ module "karpenter" {
   source  = "terraform-aws-modules/eks/aws//modules/karpenter"
   version = "~> 19.9"
 
-  cluster_name           = local.name
-  create_irsa            = false # IRSA will be created by the kubernetes-addons module
+  cluster_name = local.name
+  create_irsa  = false # IRSA will be created by the kubernetes-addons module
 
   tags = local.tags
 }
